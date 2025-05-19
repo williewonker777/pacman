@@ -1,3 +1,6 @@
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+
 # searchAgents.py
 # ---------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -485,7 +488,10 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # 현재 게임 상태를 바탕으로 AnyFoodSearchProblem을 생성합니다.
+        problem = AnyFoodSearchProblem(gameState)
+        # BFS(또는 원하는 탐색 알고리즘)을 사용하여 경로를 찾습니다.
+        return search.bfs(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -521,7 +527,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
     """

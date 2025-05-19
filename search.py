@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 # search.py
 # ---------
 # Licensing Information:  You are free to use or extend these projects for
@@ -10,6 +12,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
 
 
 """
@@ -87,17 +90,67 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # util.py에서 제공하는 Stack 사용
+    stack = util.Stack()
+    visited = set()  # 이미 방문한 상태 저장. 상태가 hashable하다는 가정 하에 사용
+    # 초기 상태와 빈 액션 목록을 스택에 푸시
+    stack.push((problem.getStartState(), []))
+
+    while not stack.isEmpty():
+        state, actions = stack.pop()
+        if problem.isGoalState(state):
+            return actions
+        if state not in visited:
+            visited.add(state)
+            for next_state, action, cost in problem.getSuccessors(state):
+                if next_state not in visited:
+                    # 현재까지의 액션 목록에 새 액션을 추가하여 경로 구성
+                    stack.push((next_state, actions + [action]))
+    return []  # 목표 상태를 찾지 못한 경우 빈 리스트 반환
+    
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # util.py에서 제공하는 Queue 사용
+    queue = util.Queue()
+    visited = set()
+    start = problem.getStartState()
+    queue.push((start, []))
+    visited.add(start)
+
+    while not queue.isEmpty():
+        state, actions = queue.pop()
+        if problem.isGoalState(state):
+            return actions
+        for next_state, action, cost in problem.getSuccessors(state):
+            if next_state not in visited:
+                visited.add(next_state)
+                queue.push((next_state, actions + [action]))
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # util.py의 PriorityQueue 사용 (우선순위: 누적 비용)
+    pq = util.PriorityQueue()
+    start = problem.getStartState()
+    # 초기 상태: (상태, 액션 리스트, 누적 비용), 우선순위 = 누적 비용
+    pq.push((start, [], 0), 0)
+    # visited 딕셔너리: 각 상태에 대해 현재까지의 최저 누적 비용 기록
+    visited = {start: 0}
+
+    while not pq.isEmpty():
+        state, actions, costSoFar = pq.pop()
+        if problem.isGoalState(state):
+            return actions
+        for next_state, action, step_cost in problem.getSuccessors(state):
+            new_cost = costSoFar + step_cost
+            # 이미 방문한 상태가 없거나 더 낮은 비용으로 도달한 경우 갱신
+            if next_state not in visited or new_cost < visited[next_state]:
+                visited[next_state] = new_cost
+                pq.push((next_state, actions + [action], new_cost), new_cost)
+    return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -109,7 +162,26 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    A*: 누적 비용과 휴리스틱 값을 합한 값이 가장 낮은 노드를 우선적으로 탐색합니다.
+    """
+    pq = util.PriorityQueue()
+    start = problem.getStartState()
+    initial_priority = heuristic(start, problem)
+    pq.push((start, [], 0), initial_priority)
+    visited = {start: 0}
+
+    while not pq.isEmpty():
+        state, actions, costSoFar = pq.pop()
+        if problem.isGoalState(state):
+            return actions
+        for next_state, action, step_cost in problem.getSuccessors(state):
+            new_cost = costSoFar + step_cost
+            if next_state not in visited or new_cost < visited[next_state]:
+                visited[next_state] = new_cost
+                priority = new_cost + heuristic(next_state, problem)
+                pq.push((next_state, actions + [action], new_cost), priority)
+    return []
 
 
 # Abbreviations
